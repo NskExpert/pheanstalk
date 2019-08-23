@@ -4,7 +4,10 @@ namespace Enqueue\Pheanstalk\Tests;
 
 use Enqueue\Pheanstalk\PheanstalkConnectionFactory;
 use Enqueue\Test\ClassExtensionTrait;
+use Generator;
+use LogicException;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 /**
  * The class contains the factory tests dedicated to configuration.
@@ -15,15 +18,15 @@ class PheanstalkConnectionFactoryConfigTest extends TestCase
 
     public function testThrowNeitherArrayStringNorNullGivenAsConfig()
     {
-        $this->expectException(\LogicException::class);
+        $this->expectException(LogicException::class);
         $this->expectExceptionMessage('The config must be either an array of options, a DSN string or null');
 
-        new PheanstalkConnectionFactory(new \stdClass());
+        new PheanstalkConnectionFactory(new stdClass());
     }
 
     public function testThrowIfSchemeIsNotBeanstalkAmqp()
     {
-        $this->expectException(\LogicException::class);
+        $this->expectException(LogicException::class);
         $this->expectExceptionMessage('The given DSN scheme "http" is not supported. Could be "beanstalk" only.');
 
         new PheanstalkConnectionFactory('http://example.com');
@@ -31,7 +34,7 @@ class PheanstalkConnectionFactoryConfigTest extends TestCase
 
     public function testThrowIfDsnCouldNotBeParsed()
     {
-        $this->expectException(\LogicException::class);
+        $this->expectException(LogicException::class);
         $this->expectExceptionMessage('Failed to parse DSN "beanstalk://:@/"');
 
         new PheanstalkConnectionFactory('beanstalk://:@/');
@@ -50,6 +53,9 @@ class PheanstalkConnectionFactoryConfigTest extends TestCase
         $this->assertAttributeEquals($expectedConfig, 'config', $factory);
     }
 
+    /**
+     * @return Generator
+     */
     public static function provideConfigs()
     {
         yield [

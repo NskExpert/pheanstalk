@@ -11,6 +11,7 @@ use Interop\Queue\Exception\TemporaryQueueNotSupportedException;
 use Pheanstalk\Connection;
 use Pheanstalk\Pheanstalk;
 use PHPUnit\Framework\TestCase;
+use PHPUnit_Framework_MockObject_MockObject;
 
 class PheanstalkContextTest extends TestCase
 {
@@ -26,6 +27,9 @@ class PheanstalkContextTest extends TestCase
         new PheanstalkContext($this->createPheanstalkMock());
     }
 
+    /**
+     * @throws TemporaryQueueNotSupportedException
+     */
     public function testThrowNotImplementedOnCreateTemporaryQueue()
     {
         $context = new PheanstalkContext($this->createPheanstalkMock());
@@ -35,6 +39,9 @@ class PheanstalkContextTest extends TestCase
         $context->createTemporaryQueue();
     }
 
+    /**
+     * @throws InvalidDestinationException
+     */
     public function testThrowInvalidDestinationIfInvalidDestinationGivenOnCreateConsumer()
     {
         $context = new PheanstalkContext($this->createPheanstalkMock());
@@ -73,7 +80,7 @@ class PheanstalkContextTest extends TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|Pheanstalk
+     * @return PHPUnit_Framework_MockObject_MockObject|Pheanstalk
      */
     private function createPheanstalkMock()
     {

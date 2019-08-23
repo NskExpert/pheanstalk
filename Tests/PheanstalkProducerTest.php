@@ -12,6 +12,7 @@ use Interop\Queue\Exception\InvalidDestinationException;
 use Interop\Queue\Exception\InvalidMessageException;
 use Pheanstalk\Pheanstalk;
 use PHPUnit\Framework\TestCase;
+use PHPUnit_Framework_MockObject_MockObject;
 
 class PheanstalkProducerTest extends TestCase
 {
@@ -22,6 +23,10 @@ class PheanstalkProducerTest extends TestCase
         new PheanstalkProducer($this->createPheanstalkMock());
     }
 
+    /**
+     * @throws InvalidDestinationException
+     * @throws InvalidMessageException
+     */
     public function testThrowIfDestinationInvalid()
     {
         $producer = new PheanstalkProducer($this->createPheanstalkMock());
@@ -31,6 +36,10 @@ class PheanstalkProducerTest extends TestCase
         $producer->send(new NullQueue('aQueue'), new PheanstalkMessage());
     }
 
+    /**
+     * @throws InvalidDestinationException
+     * @throws InvalidMessageException
+     */
     public function testThrowIfMessageInvalid()
     {
         $producer = new PheanstalkProducer($this->createPheanstalkMock());
@@ -40,6 +49,10 @@ class PheanstalkProducerTest extends TestCase
         $producer->send(new PheanstalkDestination('aQueue'), new NullMessage());
     }
 
+    /**
+     * @throws InvalidDestinationException
+     * @throws InvalidMessageException
+     */
     public function testShouldJsonEncodeMessageAndPutToExpectedTube()
     {
         $message = new PheanstalkMessage('theBody', ['foo' => 'fooVal'], ['bar' => 'barVal']);
@@ -66,7 +79,7 @@ class PheanstalkProducerTest extends TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|Pheanstalk
+     * @return PHPUnit_Framework_MockObject_MockObject|Pheanstalk
      */
     private function createPheanstalkMock()
     {

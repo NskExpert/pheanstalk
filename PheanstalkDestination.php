@@ -14,21 +14,34 @@ class PheanstalkDestination implements Queue, Topic
      */
     private $destinationName;
 
+    /**
+     * PheanstalkDestination constructor.
+     * @param string $destinationName
+     */
     public function __construct(string $destinationName)
     {
         $this->destinationName = $destinationName;
     }
 
+    /**
+     * @return string
+     */
     public function getName(): string
     {
         return $this->destinationName;
     }
 
+    /**
+     * @return string
+     */
     public function getQueueName(): string
     {
         return $this->destinationName;
     }
 
+    /**
+     * @return string
+     */
     public function getTopicName(): string
     {
         return $this->destinationName;

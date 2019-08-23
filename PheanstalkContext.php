@@ -25,12 +25,19 @@ class PheanstalkContext implements Context
      */
     private $pheanstalk;
 
+    /**
+     * PheanstalkContext constructor.
+     * @param Pheanstalk $pheanstalk
+     */
     public function __construct(Pheanstalk $pheanstalk)
     {
         $this->pheanstalk = $pheanstalk;
     }
 
     /**
+     * @param string $body
+     * @param array $properties
+     * @param array $headers
      * @return PheanstalkMessage
      */
     public function createMessage(string $body = '', array $properties = [], array $headers = []): Message
@@ -39,6 +46,7 @@ class PheanstalkContext implements Context
     }
 
     /**
+     * @param string $topicName
      * @return PheanstalkDestination
      */
     public function createTopic(string $topicName): Topic
@@ -47,6 +55,7 @@ class PheanstalkContext implements Context
     }
 
     /**
+     * @param string $queueName
      * @return PheanstalkDestination
      */
     public function createQueue(string $queueName): Queue
@@ -54,6 +63,10 @@ class PheanstalkContext implements Context
         return new PheanstalkDestination($queueName);
     }
 
+    /**
+     * @return Queue
+     * @throws TemporaryQueueNotSupportedException
+     */
     public function createTemporaryQueue(): Queue
     {
         throw TemporaryQueueNotSupportedException::providerDoestNotSupportIt();
@@ -68,32 +81,45 @@ class PheanstalkContext implements Context
     }
 
     /**
-     * @param PheanstalkDestination $destination
+     * @param Destination $destination
      *
      * @return PheanstalkConsumer
+     * @throws InvalidDestinationException
      */
     public function createConsumer(Destination $destination): Consumer
     {
         InvalidDestinationException::assertDestinationInstanceOf($destination, PheanstalkDestination::class);
 
+        /** @noinspection PhpParamsInspection */
         return new PheanstalkConsumer($destination, $this->pheanstalk);
     }
 
     public function close(): void
     {
-        $this->pheanstalk->getConnection()->disconnect();
+        //Pheanstalk V4 не использует персистентные подключения, поэтом закрывать подключение нет необходимости
     }
 
+    /**
+     * @return SubscriptionConsumer
+     * @throws SubscriptionConsumerNotSupportedException
+     */
     public function createSubscriptionConsumer(): SubscriptionConsumer
     {
         throw SubscriptionConsumerNotSupportedException::providerDoestNotSupportIt();
     }
 
+    /**
+     * @param Queue $queue
+     * @throws PurgeQueueNotSupportedException
+     */
     public function purgeQueue(Queue $queue): void
     {
         throw PurgeQueueNotSupportedException::providerDoestNotSupportIt();
     }
 
+    /**
+     * @return Pheanstalk
+     */
     public function getPheanstalk(): Pheanstalk
     {
         return $this->pheanstalk;

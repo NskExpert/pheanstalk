@@ -8,6 +8,8 @@ use Interop\Queue\Consumer;
 use Interop\Queue\Exception\InvalidMessageException;
 use Interop\Queue\Message;
 use Interop\Queue\Queue;
+use LogicException;
+use Pheanstalk\Exception\DeadlineSoonException;
 use Pheanstalk\Job;
 use Pheanstalk\Pheanstalk;
 
@@ -23,6 +25,11 @@ class PheanstalkConsumer implements Consumer
      */
     private $pheanstalk;
 
+    /**
+     * PheanstalkConsumer constructor.
+     * @param PheanstalkDestination $destination
+     * @param Pheanstalk $pheanstalk
+     */
     public function __construct(PheanstalkDestination $destination, Pheanstalk $pheanstalk)
     {
         $this->destination = $destination;
@@ -38,18 +45,20 @@ class PheanstalkConsumer implements Consumer
     }
 
     /**
+     * @param int $timeout
      * @return PheanstalkMessage
+     * @throws DeadlineSoonException
      */
     public function receive(int $timeout = 0): ?Message
     {
         if (0 === $timeout) {
             while (true) {
-                if ($job = $this->pheanstalk->reserveFromTube($this->destination->getName(), 5)) {
+                if ($job = $this->reserveFromTube($this->destination->getName(), 5)) {
                     return $this->convertJobToMessage($job);
                 }
             }
         } else {
-            if ($job = $this->pheanstalk->reserveFromTube($this->destination->getName(), $timeout / 1000)) {
+            if ($job = $this->reserveFromTube($this->destination->getName(), $timeout / 1000)) {
                 return $this->convertJobToMessage($job);
             }
         }
@@ -59,10 +68,11 @@ class PheanstalkConsumer implements Consumer
 
     /**
      * @return PheanstalkMessage
+     * @throws DeadlineSoonException
      */
     public function receiveNoWait(): ?Message
     {
-        if ($job = $this->pheanstalk->reserveFromTube($this->destination->getName(), 0)) {
+        if ($job = $this->reserveFromTube($this->destination->getName(), 0)) {
             return $this->convertJobToMessage($job);
         }
 
@@ -70,42 +80,54 @@ class PheanstalkConsumer implements Consumer
     }
 
     /**
-     * @param PheanstalkMessage $message
+     * @param Message $message
+     * @throws InvalidMessageException
      */
     public function acknowledge(Message $message): void
     {
         InvalidMessageException::assertMessageInstanceOf($message, PheanstalkMessage::class);
 
+        /** @noinspection PhpUndefinedMethodInspection */
         if (false == $message->getJob()) {
-            throw new \LogicException('The message could not be acknowledged because it does not have job set.');
+            throw new LogicException('The message could not be acknowledged because it does not have job set.');
         }
 
+        /** @noinspection PhpUndefinedMethodInspection */
         $this->pheanstalk->delete($message->getJob());
     }
 
     /**
-     * @param PheanstalkMessage $message
+     * @param Message $message
+     * @param bool $requeue
+     * @throws InvalidMessageException
      */
     public function reject(Message $message, bool $requeue = false): void
     {
         InvalidMessageException::assertMessageInstanceOf($message, PheanstalkMessage::class);
 
+        /** @noinspection PhpUndefinedMethodInspection */
         if (false == $message->getJob()) {
-            throw new \LogicException(sprintf(
+            throw new LogicException(sprintf(
                 'The message could not be %s because it does not have job set.',
                 $requeue ? 'requeued' : 'rejected'
             ));
         }
 
         if ($requeue) {
+            /** @noinspection PhpUndefinedMethodInspection */
             $this->pheanstalk->release($message->getJob(), $message->getPriority(), $message->getDelay());
 
             return;
         }
 
-        $this->acknowledge($message);
+        /** @noinspection PhpUndefinedMethodInspection */
+        $this->pheanstalk->bury($message->getJob());
     }
 
+    /**
+     * @param Job $job
+     * @return PheanstalkMessage
+     */
     private function convertJobToMessage(Job $job): PheanstalkMessage
     {
         $stats = $this->pheanstalk->statsJob($job);
@@ -115,5 +137,22 @@ class PheanstalkConsumer implements Consumer
         $message->setJob($job);
 
         return $message;
+    }
+
+    /**
+     * @param string $getName
+     * @param int $int
+     * @return Job|null
+     * @throws DeadlineSoonException
+     */
+    private function reserveFromTube(string $getName, int $int): Job
+    {
+        $this->pheanstalk->watchOnly($getName);
+        if ($int === 0) {
+            $result = $this->pheanstalk->reserve();
+        } else {
+            $result = $this->pheanstalk->reserveWithTimeout($int);
+        }
+        return $result;
     }
 }
