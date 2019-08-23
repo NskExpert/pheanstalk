@@ -145,7 +145,7 @@ class PheanstalkConsumer implements Consumer
      * @return Job|null
      * @throws DeadlineSoonException
      */
-    private function reserveFromTube(string $getName, int $int): Job
+    private function reserveFromTube(string $getName, int $int): ?Job
     {
         $this->pheanstalk->watchOnly($getName);
         if ($int === 0) {
