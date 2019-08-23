@@ -121,7 +121,7 @@ class PheanstalkConnectionFactory implements ConnectionFactory
         return [
             'host' => 'localhost',
             'port' => Pheanstalk::DEFAULT_PORT,
-            'timeout' => null,
+            'timeout' => 10,
             'persisted' => true,
         ];
     }
