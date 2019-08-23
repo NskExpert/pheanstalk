@@ -63,20 +63,9 @@ class PheanstalkContextTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects($this->once())
+            ->expects($this->never())
             ->method('disconnect')
         ;
-
-        $pheanstalk = $this->createPheanstalkMock();
-        $pheanstalk
-            ->expects($this->once())
-            ->method('getConnection')
-            ->willReturn($connection)
-        ;
-
-        $context = new PheanstalkContext($pheanstalk);
-
-        $context->close();
     }
 
     /**

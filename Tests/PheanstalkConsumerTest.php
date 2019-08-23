@@ -18,6 +18,8 @@ class PheanstalkConsumerTest extends TestCase
 {
     use ClassExtensionTrait;
 
+    const THE_JOB_ID = 123;
+
     public function testCouldBeConstructedWithDestinationAndPheanstalkAsArguments()
     {
         new PheanstalkConsumer(
@@ -48,8 +50,8 @@ class PheanstalkConsumerTest extends TestCase
         $pheanstalk = $this->createPheanstalkMock();
         $pheanstalk
             ->expects($this->once())
-            ->method('reserveFromTube')
-            ->with('theQueueName', 1)
+            ->method('reserveWithTimeout')
+            ->with(1)
             ->willReturn(null)
         ;
 
@@ -66,13 +68,13 @@ class PheanstalkConsumerTest extends TestCase
         $destination = new PheanstalkDestination('theQueueName');
         $message = new  PheanstalkMessage('theBody', ['foo' => 'fooVal'], ['bar' => 'barVal']);
 
-        $job = new Job('theJobId', json_encode($message));
+        $job = new Job(self::THE_JOB_ID, json_encode($message));
 
         $pheanstalk = $this->createPheanstalkMock();
         $pheanstalk
             ->expects($this->once())
-            ->method('reserveFromTube')
-            ->with('theQueueName', 1)
+            ->method('reserveWithTimeout')
+            ->with(1)
             ->willReturn($job)
         ;
 
@@ -96,8 +98,8 @@ class PheanstalkConsumerTest extends TestCase
         $pheanstalk = $this->createPheanstalkMock();
         $pheanstalk
             ->expects($this->once())
-            ->method('reserveFromTube')
-            ->with('theQueueName', 0)
+            ->method('reserveWithTimeout')
+            ->with(0)
             ->willReturn(null)
         ;
 
@@ -114,13 +116,13 @@ class PheanstalkConsumerTest extends TestCase
         $destination = new PheanstalkDestination('theQueueName');
         $message = new PheanstalkMessage('theBody', ['foo' => 'fooVal'], ['bar' => 'barVal']);
 
-        $job = new Job('theJobId', json_encode($message));
+        $job = new Job(self::THE_JOB_ID, json_encode($message));
 
         $pheanstalk = $this->createPheanstalkMock();
         $pheanstalk
             ->expects($this->once())
-            ->method('reserveFromTube')
-            ->with('theQueueName', 0)
+            ->method('reserveWithTimeout')
+            ->with(0)
             ->willReturn($job)
         ;
 
@@ -142,7 +144,7 @@ class PheanstalkConsumerTest extends TestCase
         $destination = new PheanstalkDestination('theQueueName');
         $message = new PheanstalkMessage();
 
-        $job = new Job('theJobId', json_encode($message));
+        $job = new Job(self::THE_JOB_ID, json_encode($message));
         $message->setJob($job);
 
         $pheanstalk = $this->createPheanstalkMock();
@@ -181,13 +183,13 @@ class PheanstalkConsumerTest extends TestCase
         $destination = new PheanstalkDestination('theQueueName');
         $message = new PheanstalkMessage();
 
-        $job = new Job('theJobId', json_encode($message));
+        $job = new Job(self::THE_JOB_ID, json_encode($message));
         $message->setJob($job);
 
         $pheanstalk = $this->createPheanstalkMock();
         $pheanstalk
             ->expects($this->once())
-            ->method('delete')
+            ->method('bury')
             ->with($job)
         ;
 
@@ -220,7 +222,7 @@ class PheanstalkConsumerTest extends TestCase
         $destination = new PheanstalkDestination('theQueueName');
         $message = new PheanstalkMessage();
 
-        $job = new Job('theJobId', json_encode($message));
+        $job = new Job(self::THE_JOB_ID, json_encode($message));
         $message->setJob($job);
 
         $pheanstalk = $this->createPheanstalkMock();

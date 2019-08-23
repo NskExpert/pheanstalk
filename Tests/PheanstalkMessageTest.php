@@ -11,9 +11,11 @@ class PheanstalkMessageTest extends TestCase
 {
     use ClassExtensionTrait;
 
+    const THE_JOB_ID = 123;
+
     public function testShouldAllowGetJobPreviouslySet()
     {
-        $job = new Job('anId', 'aData');
+        $job = new Job(self::THE_JOB_ID, 'aData');
 
         $message = new PheanstalkMessage();
         $message->setJob($job);

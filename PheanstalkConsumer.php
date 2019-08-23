@@ -140,19 +140,14 @@ class PheanstalkConsumer implements Consumer
     }
 
     /**
-     * @param string $getName
-     * @param int $int
+     * @param string $tubeName
+     * @param int $timeout
      * @return Job|null
      * @throws DeadlineSoonException
      */
-    private function reserveFromTube(string $getName, int $int): ?Job
+    private function reserveFromTube(string $tubeName, int $timeout): ?Job
     {
-        $this->pheanstalk->watchOnly($getName);
-        if ($int === 0) {
-            $result = $this->pheanstalk->reserve();
-        } else {
-            $result = $this->pheanstalk->reserveWithTimeout($int);
-        }
-        return $result;
+        $this->pheanstalk->watchOnly($tubeName);
+        return $this->pheanstalk->reserveWithTimeout($timeout);
     }
 }
