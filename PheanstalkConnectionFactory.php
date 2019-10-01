@@ -44,8 +44,7 @@ class PheanstalkConnectionFactory implements ConnectionFactory
             $config = [];
         } elseif (is_string($config)) {
             $config = $this->parseDsn($config);
-        } elseif (is_array($config)) {
-        } else {
+        } elseif (is_array($config)) { } else {
             throw new LogicException('The config must be either an array of options, a DSN string or null');
         }
 
@@ -98,8 +97,12 @@ class PheanstalkConnectionFactory implements ConnectionFactory
         ], $dsnConfig);
 
         if ('beanstalk' !== $dsnConfig['scheme']) {
-            throw new LogicException(sprintf('The given DSN scheme "%s" is not supported. Could be "beanstalk" only.',
-                $dsnConfig['scheme']));
+            throw new LogicException(
+                sprintf(
+                    'The given DSN scheme "%s" is not supported. Could be "beanstalk" only.',
+                    $dsnConfig['scheme']
+                )
+            );
         }
 
         $query = [];

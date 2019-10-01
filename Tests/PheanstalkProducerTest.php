@@ -62,13 +62,11 @@ class PheanstalkProducerTest extends TestCase
             ->expects($this->once())
             ->method('useTube')
             ->with('theQueueName')
-            ->willReturnSelf()
-        ;
+            ->willReturnSelf();
         $pheanstalk
             ->expects($this->once())
             ->method('put')
-            ->with('{"body":"theBody","properties":{"foo":"fooVal"},"headers":{"bar":"barVal"}}')
-        ;
+            ->with('{"body":"theBody","properties":{"foo":"fooVal"},"headers":{"bar":"barVal"}}');
 
         $producer = new PheanstalkProducer($pheanstalk);
 

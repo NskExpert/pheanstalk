@@ -52,8 +52,7 @@ class PheanstalkConsumerTest extends TestCase
             ->expects($this->once())
             ->method('reserveWithTimeout')
             ->with(1)
-            ->willReturn(null)
-        ;
+            ->willReturn(null);
 
         $consumer = new PheanstalkConsumer($destination, $pheanstalk);
 
@@ -75,8 +74,7 @@ class PheanstalkConsumerTest extends TestCase
             ->expects($this->once())
             ->method('reserveWithTimeout')
             ->with(1)
-            ->willReturn($job)
-        ;
+            ->willReturn($job);
 
         $consumer = new PheanstalkConsumer($destination, $pheanstalk);
 
@@ -100,8 +98,7 @@ class PheanstalkConsumerTest extends TestCase
             ->expects($this->once())
             ->method('reserveWithTimeout')
             ->with(0)
-            ->willReturn(null)
-        ;
+            ->willReturn(null);
 
         $consumer = new PheanstalkConsumer($destination, $pheanstalk);
 
@@ -123,8 +120,7 @@ class PheanstalkConsumerTest extends TestCase
             ->expects($this->once())
             ->method('reserveWithTimeout')
             ->with(0)
-            ->willReturn($job)
-        ;
+            ->willReturn($job);
 
         $consumer = new PheanstalkConsumer($destination, $pheanstalk);
 
@@ -151,8 +147,7 @@ class PheanstalkConsumerTest extends TestCase
         $pheanstalk
             ->expects($this->once())
             ->method('delete')
-            ->with($job)
-        ;
+            ->with($job);
 
         $consumer = new PheanstalkConsumer($destination, $pheanstalk);
 
@@ -190,8 +185,7 @@ class PheanstalkConsumerTest extends TestCase
         $pheanstalk
             ->expects($this->once())
             ->method('bury')
-            ->with($job)
-        ;
+            ->with($job);
 
         $consumer = new PheanstalkConsumer($destination, $pheanstalk);
 
@@ -229,12 +223,10 @@ class PheanstalkConsumerTest extends TestCase
         $pheanstalk
             ->expects($this->once())
             ->method('release')
-            ->with($job, Pheanstalk::DEFAULT_PRIORITY, Pheanstalk::DEFAULT_DELAY)
-        ;
+            ->with($job, Pheanstalk::DEFAULT_PRIORITY, Pheanstalk::DEFAULT_DELAY);
         $pheanstalk
             ->expects($this->never())
-            ->method('delete')
-        ;
+            ->method('delete');
 
         $consumer = new PheanstalkConsumer($destination, $pheanstalk);
 
